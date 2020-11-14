@@ -42,10 +42,15 @@
 #include "COREMOD_arith/COREMOD_arith.h"
 #include "COREMOD_iofits/COREMOD_iofits.h"
 
+
+#include "Fresnel_propagate.h"
+#include "Fresnel_propagate_cube.h"
+
+
 #include "fft/fft.h"
 #include "image_gen/image_gen.h"
 
-#include "WFpropagate/WFpropagate.h"
+//#include "WFpropagate/WFpropagate.h"
 
 #define SBUFFERSIZE 2000
 
@@ -87,54 +92,17 @@ INIT_MODULE_LIB(WFpropagate)
 
 
 
-static errno_t Fresnel_propagate_wavefront__cli()
-{
-
-    if(0
-            + CLI_checkarg(1, CLIARG_IMG)
-            + CLI_checkarg(2, CLIARG_STR_NOT_IMG)
-            + CLI_checkarg(3, CLIARG_FLOAT)
-            + CLI_checkarg(4, CLIARG_FLOAT)
-            + CLI_checkarg(5, CLIARG_FLOAT)
-            == 0)
-    {
-        Fresnel_propagate_wavefront(
-            data.cmdargtoken[1].val.string,
-            data.cmdargtoken[2].val.string,
-            data.cmdargtoken[3].val.numf,
-            data.cmdargtoken[4].val.numf,
-            data.cmdargtoken[5].val.numf);
-
-        return CLICMD_SUCCESS;
-    }
-    else
-    {
-        return CLICMD_INVALID_ARG;
-    }
-}
-
-
-
 
 
 
 static errno_t init_module_CLI()
 {
-	
-    RegisterCLIcommand(
-		"fresnelpw",
-		__FILE__, 
-		Fresnel_propagate_wavefront__cli, 
-		"Fresnel propagate WF", 
-		"<input image> <output image> <pupil scale m/s> <prop dist> <lambda>", 
-		"fresnelpw in out 0.01 1000 0.0000005", 
-		"int Fresnel_propagate_wavefront(char *in, char *out, double PUPIL_SCALE, double z, double lambda)"
-		);	
-	
- 
- // add atexit functions here
 
-  return 0;
+    Fresnel_propagate_wavefront_addCLIcmd();
+
+// add atexit functions here
+
+    return 0;
 
 }
 
@@ -142,98 +110,6 @@ static errno_t init_module_CLI()
 
 
 
-
-
-int Fresnel_propagate_wavefront(
-    char *in,
-    char *out,
-    double PUPIL_SCALE,
-    double z,
-    double lambda)
-{
-    /* all units are in m */
-    double coeff;
-    long ii, jj, ii1, jj1;
-    long naxes[2];
-    long ID;
-    double sqdist;
-    double re, im;
-    double angle;
-    double co1;
-    long ii2, jj2;
-    long n0h, n1h;
-    int atype;
-
-
-    do2dfft(in, "tmp");
-    permut("tmp");
-    ID = image_ID("tmp");
-    atype = data.image[ID].md[0].datatype;
-
-
-
-
-
-    naxes[0] = data.image[ID].md[0].size[0];
-    naxes[1] = data.image[ID].md[0].size[1];
-    coeff = PI * z * lambda / (PUPIL_SCALE * naxes[0]) / (PUPIL_SCALE * naxes[0]);
-
-    co1 = 1.0 * naxes[0] * naxes[1];
-    n0h = naxes[0] / 2;
-    n1h = naxes[1] / 2;
-
-
-//	printf("coeff = %g     co1 = %g\n", coeff, co1);
-
-    if(atype == _DATATYPE_COMPLEX_FLOAT)
-    {
-        for(jj = 0; jj < naxes[1]; jj++)
-        {
-            jj1 = naxes[0] * jj;
-            jj2 = (jj - naxes[1] / 2) * (jj - naxes[1] / 2);
-            for(ii = 0; ii < naxes[0]; ii++)
-            {
-                ii1 = jj1 + ii;
-                ii2 = ii - n0h;
-                sqdist = ii2 * ii2 + jj2;
-                angle = -coeff * sqdist;
-                re = data.image[ID].array.CF[ii1].re / co1;
-                im = data.image[ID].array.CF[ii1].im / co1;
-                data.image[ID].array.CF[ii1].re = re * cos(angle) - im * sin(angle);
-                data.image[ID].array.CF[ii1].im = re * sin(angle) + im * cos(angle);
-            }
-        }
-    }
-    else
-    {
-        for(jj = 0; jj < naxes[1]; jj++)
-        {
-            jj1 = naxes[0] * jj;
-            jj2 = (jj - naxes[1] / 2) * (jj - naxes[1] / 2);
-            for(ii = 0; ii < naxes[0]; ii++)
-            {
-                ii1 = jj1 + ii;
-                ii2 = ii - n0h;
-                sqdist = ii2 * ii2 + jj2;
-                angle = -coeff * sqdist;
-                re = data.image[ID].array.CD[ii1].re / co1;
-                im = data.image[ID].array.CD[ii1].im / co1;
-                data.image[ID].array.CD[ii1].re = re * cos(angle) - im * sin(angle);
-                data.image[ID].array.CD[ii1].im = re * sin(angle) + im * cos(angle);
-            }
-        }
-    }
-
-    permut("tmp");
-
-
-    do2dffti("tmp", out);
-
-
-    delete_image_ID("tmp");
-
-    return(0);
-}
 
 
 
@@ -247,9 +123,9 @@ int Fresnel_propagate_wavefront(
 
 
 /* takes better care of aliasing problems */
-int Init_Fresnel_propagate_wavefront(char *Cim, long size, double PUPIL_SCALE, double z, double lambda, double FPMASKRAD, int Precision)
+/*int Init_Fresnel_propagate_wavefront(char *Cim, long size, double PUPIL_SCALE, double z, double lambda, double FPMASKRAD, int Precision)
 {
-    /* all units are in m */
+    // all units are in m 
     double coeff;
     long ii,jj;
     double sqdist;
@@ -344,17 +220,17 @@ int Init_Fresnel_propagate_wavefront(char *Cim, long size, double PUPIL_SCALE, d
     return(0);
 }
 
+*/
 
 
 
 
 
 
-
-
+/*
 int Fresnel_propagate_wavefront1(char *in, char *out, char *Cin)
 {
-    /* all units are in m */
+    // all units are in m 
     long ii;
     long naxes[2];
     long ID;
@@ -413,80 +289,13 @@ int Fresnel_propagate_wavefront1(char *in, char *out, char *Cin)
     return(0);
 }
 
+*/
 
 
 
 
 
-long Fresnel_propagate_cube(char *IDcin_name, char *IDout_name_amp, char *IDout_name_pha, double PUPIL_SCALE, double zstart, double zend, long NBzpts, double lambda)
-{
-    long IDouta, IDoutp;
-    long IDcin;
-    long xsize, ysize;
-    long ii,jj,kk;
-    double zprop;
-    long IDtmp;
-    double re,im,amp,pha;
-    int atype;
-
-    IDcin = image_ID(IDcin_name);
-    xsize = data.image[IDcin].md[0].size[0];
-    ysize = data.image[IDcin].md[0].size[1];
-    atype = data.image[IDcin].md[0].datatype;
-
-    if(atype == _DATATYPE_COMPLEX_FLOAT)
-    {
-        IDouta = create_3Dimage_ID(IDout_name_amp,xsize,ysize,NBzpts);
-        IDoutp = create_3Dimage_ID(IDout_name_pha,xsize,ysize,NBzpts);
-    }
-    else
-    {
-        IDouta = create_3Dimage_ID_double(IDout_name_amp,xsize,ysize,NBzpts);
-        IDoutp = create_3Dimage_ID_double(IDout_name_pha,xsize,ysize,NBzpts);
-    }
-
-    for(kk=0; kk<NBzpts; kk++)
-    {
-        zprop = zstart + (zend-zstart)*kk/NBzpts;
-        printf("[%ld] propagating by %f m\n",kk,zprop);
-        Fresnel_propagate_wavefront(IDcin_name, "_propim", PUPIL_SCALE, zprop, lambda);
-        IDtmp = image_ID("_propim");
-        if(atype == _DATATYPE_COMPLEX_FLOAT)
-        {
-            for(ii=0; ii<xsize; ii++)
-                for(jj=0; jj<ysize; jj++)
-                {
-                    re = data.image[IDtmp].array.CF[jj*xsize+ii].re;
-                    im = data.image[IDtmp].array.CF[jj*xsize+ii].im;
-                    amp = sqrt(re*re+im*im);
-                    pha = atan2(im,re);
-                    data.image[IDouta].array.F[kk*xsize*ysize+jj*xsize+ii] = amp;
-                    data.image[IDoutp].array.F[kk*xsize*ysize+jj*xsize+ii] = pha;
-                }
-        }
-        else
-        {
-            for(ii=0; ii<xsize; ii++)
-                for(jj=0; jj<ysize; jj++)
-                {
-                    re = data.image[IDtmp].array.CD[jj*xsize+ii].re;
-                    im = data.image[IDtmp].array.CD[jj*xsize+ii].im;
-                    amp = sqrt(re*re+im*im);
-                    pha = atan2(im,re);
-                    data.image[IDouta].array.D[kk*xsize*ysize+jj*xsize+ii] = amp;
-                    data.image[IDoutp].array.D[kk*xsize*ysize+jj*xsize+ii] = pha;
-                }
-        }
-
-        delete_image_ID("_propim");
-    }
-
-    return(0);
-}
-
-
-
-
+/*
 
 double WFpropagate_TestLyot(long NBmask, double *maskpos)
 {
@@ -507,8 +316,7 @@ double WFpropagate_TestLyot(long NBmask, double *maskpos)
     char fname[200];
 
     printf("Testing Lyot Masks\n");
-    // input image is imc (complex amplitude)
-    // masks are mask0, mask1 etc...
+
 
     copy_image_ID("imc", "imc0", 0);
     for(k=0; k<NBmask; k++)
@@ -597,7 +405,10 @@ double WFpropagate_TestLyot(long NBmask, double *maskpos)
 }
 
 
+*/
 
+
+/*
 
 long WFpropagate_run() // custom function
 {
@@ -656,3 +467,6 @@ long WFpropagate_run() // custom function
 
   return(0);
 }
+*/
+
+

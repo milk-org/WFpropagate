@@ -1,5 +1,7 @@
 # list source files (.c) other than modulename.c
 set(SOURCEFILES
+	Fresnel_propagate.c
+	Fresnel_propagate_cube.c
     )
 
 # list include files (.h) that should be installed on system
