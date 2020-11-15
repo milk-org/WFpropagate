@@ -90,7 +90,6 @@ errno_t Fresnel_propagate_wavefront_addCLIcmd()
 
 
 
-
 errno_t Fresnel_propagate_wavefront(
     const char *restrict in,
     const char *restrict out,
@@ -109,7 +108,7 @@ errno_t Fresnel_propagate_wavefront(
     double angle;
     double co1;
     long ii2, jj2;
-    long n0h, n1h;
+    long n0h;
     uint8_t datatype;
 
 
@@ -128,7 +127,7 @@ errno_t Fresnel_propagate_wavefront(
 
     co1 = 1.0 * naxes[0] * naxes[1];
     n0h = naxes[0] / 2;
-    n1h = naxes[1] / 2;
+
 
 
 //	printf("coeff = %g     co1 = %g\n", coeff, co1);
