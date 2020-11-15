@@ -9,6 +9,9 @@
 
 #include "CommandLineInterface/CLIcore.h"
 
+#include "fft/dofft.h"
+#include "fft/permut.h"
+
 #include "COREMOD_memory/COREMOD_memory.h"
 
 
