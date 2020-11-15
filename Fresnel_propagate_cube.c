@@ -3,10 +3,12 @@
  *
  */
 
+#include <math.h>
 
 #include "CommandLineInterface/CLIcore.h"
-
 #include "COREMOD_memory/COREMOD_memory.h"
+
+#include "Fresnel_propagate.h"
 
 
 errno_t Fresnel_propagate_cube(
