@@ -3,15 +3,15 @@
 
 
 
-
-void __attribute__ ((constructor)) libinit_WFpropagate();
-int init_WFpropagate();
-
-
-
-
-
-int Init_Fresnel_propagate_wavefront(char *Cim, long size, double PUPIL_SCALE, double z, double lambda, double FPMASKRAD, int Precision);
+int Init_Fresnel_propagate_wavefront(
+    char *Cim,
+    long size,
+    double PUPIL_SCALE,
+    double z,
+    double lambda,
+    double FPMASKRAD,
+    int Precision
+);
 
 
 errno_t Fresnel_propagate_wavefront(
@@ -22,7 +22,11 @@ errno_t Fresnel_propagate_wavefront(
     double lambda
 );
 
-int Fresnel_propagate_wavefront1(char *in, char *out, char *Cin);
+int Fresnel_propagate_wavefront1(
+    char *in,
+    char *out,
+    char *Cin
+);
 
 
 //long WFpropagate_run();

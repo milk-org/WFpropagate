@@ -7,7 +7,7 @@
 #define _FRESNEL_PROPAGATE_H
 
 
-errno_t Fresnel_propagate_wavefront_addCLIcmd();
+errno_t CLIADDCMD_Fresnel_propagate_wavefront();
 
 errno_t Fresnel_propagate_wavefront(
     const char *restrict in,

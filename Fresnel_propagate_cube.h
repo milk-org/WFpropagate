@@ -7,8 +7,6 @@
 #define _FRESNEL_PROPAGATE_CUBE_H
 
 
-
-
 errno_t Fresnel_propagate_cube(
     const char *restrict IDcin_name,
     const char *restrict IDout_name_amp,

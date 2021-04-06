@@ -3,93 +3,69 @@
  *
  */
 
-
-#include <math.h>
-
-
 #include "CommandLineInterface/CLIcore.h"
 
+
+#include <math.h>
 #include "fft/dofft.h"
 #include "fft/permut.h"
-
 #include "COREMOD_memory/COREMOD_memory.h"
 
+// variables local to this translation unit
+static char *inimname;
+static char *outimname;
+static double *pupscale;
+static double *propz;
+static double *proplambda;
 
 
-
-
-errno_t Fresnel_propagate_wavefront(
-    const char *restrict in,
-    const char *restrict out,
-    double PUPIL_SCALE,
-    double z,
-    double lambda
-);
-
-
-
-
-static errno_t Fresnel_propagate_wavefront__cli()
+// CLI function arguments and parameters
+static CLICMDARGDEF farg[] =
 {
-
-    if(0
-            + CLI_checkarg(1, CLIARG_IMG)
-            + CLI_checkarg(2, CLIARG_STR_NOT_IMG)
-            + CLI_checkarg(3, CLIARG_FLOAT)
-            + CLI_checkarg(4, CLIARG_FLOAT)
-            + CLI_checkarg(5, CLIARG_FLOAT)
-            == 0)
     {
-        Fresnel_propagate_wavefront(
-            data.cmdargtoken[1].val.string,
-            data.cmdargtoken[2].val.string,
-            data.cmdargtoken[3].val.numf,
-            data.cmdargtoken[4].val.numf,
-            data.cmdargtoken[5].val.numf);
-
-        return CLICMD_SUCCESS;
-    }
-    else
+        CLIARG_IMG, ".in_name", "input image", "imin",
+        CLICMDARG_FLAG_DEFAULT, FPTYPE_AUTO, FPFLAG_DEFAULT_INPUT,
+        (void **) &inimname
+    },
     {
-        return CLICMD_INVALID_ARG;
+        CLIARG_STR_NOT_IMG, ".out_name", "output image", "imout",
+        CLICMDARG_FLAG_DEFAULT, FPTYPE_AUTO, FPFLAG_DEFAULT_INPUT,
+        (void **) &inimname
+    },
+    {
+        CLIARG_FLOAT, ".pupscale", "pupil scale [m/pix]", "1.0",
+        CLICMDARG_FLAG_DEFAULT, FPTYPE_AUTO, FPFLAG_DEFAULT_INPUT,
+        (void **) &pupscale
+    },
+    {
+        CLIARG_FLOAT, ".propz", "propagation distance [m]", "1.0",
+        CLICMDARG_FLAG_DEFAULT, FPTYPE_AUTO, FPFLAG_DEFAULT_INPUT,
+        (void **) &propz
+    },
+    {
+        CLIARG_FLOAT, ".proplambda", "wavelength [m]", "0.000001",
+        CLICMDARG_FLAG_DEFAULT, FPTYPE_AUTO, FPFLAG_DEFAULT_INPUT,
+        (void **) &proplambda
     }
-}
+};
 
 
-
-
-
-
-
-// ==========================================
-// Register CLI command(s)
-// ==========================================
-
-errno_t Fresnel_propagate_wavefront_addCLIcmd()
+// CLI function initialization data
+static CLICMDDATA CLIcmddata =
 {
-
-    RegisterCLIcommand(
-		"fresnelpw",
-		__FILE__, 
-		Fresnel_propagate_wavefront__cli, 
-		"Fresnel propagate WF", 
-		"<input image> <output image> <pupil scale m/s> <prop dist> <lambda>", 
-		"fresnelpw in out 0.01 1000 0.0000005", 
-		"int Fresnel_propagate_wavefront(char *in, char *out, double PUPIL_SCALE, double z, double lambda)"
-		);	
-	
-    return RETURN_SUCCESS;
-}
+    "fresnelpw",
+    "Fresnel propagate WF",
+    __FILE__, sizeof(farg) / sizeof(CLICMDARGDEF), farg,
+    CLICMDFLAG_FPS,
+    NULL
+};
 
 
 
 
 
 
-
-
-
-
+// Computation code
 errno_t Fresnel_propagate_wavefront(
     const char *restrict in,
     const char *restrict out,
@@ -100,14 +76,9 @@ errno_t Fresnel_propagate_wavefront(
 {
     /* all units are in m */
     double coeff;
-    long ii, jj, ii1, jj1;
     long naxes[2];
     imageID ID;
-    double sqdist;
-    double re, im;
-    double angle;
     double co1;
-    long ii2, jj2;
     long n0h;
     uint8_t datatype;
 
@@ -118,9 +89,6 @@ errno_t Fresnel_propagate_wavefront(
     datatype = data.image[ID].md[0].datatype;
 
 
-
-
-
     naxes[0] = data.image[ID].md[0].size[0];
     naxes[1] = data.image[ID].md[0].size[1];
     coeff = PI * z * lambda / (PUPIL_SCALE * naxes[0]) / (PUPIL_SCALE * naxes[0]);
@@ -128,24 +96,20 @@ errno_t Fresnel_propagate_wavefront(
     co1 = 1.0 * naxes[0] * naxes[1];
     n0h = naxes[0] / 2;
 
-
-
-//	printf("coeff = %g     co1 = %g\n", coeff, co1);
-
     if(datatype == _DATATYPE_COMPLEX_FLOAT)
     {
-        for(jj = 0; jj < naxes[1]; jj++)
+        for(uint32_t jj = 0; jj < naxes[1]; jj++)
         {
-            jj1 = naxes[0] * jj;
-            jj2 = (jj - naxes[1] / 2) * (jj - naxes[1] / 2);
-            for(ii = 0; ii < naxes[0]; ii++)
+            uint32_t jj1 = naxes[0] * jj;
+            uint32_t jj2 = (jj - naxes[1] / 2) * (jj - naxes[1] / 2);
+            for(uint32_t ii = 0; ii < naxes[0]; ii++)
             {
-                ii1 = jj1 + ii;
-                ii2 = ii - n0h;
-                sqdist = ii2 * ii2 + jj2;
-                angle = -coeff * sqdist;
-                re = data.image[ID].array.CF[ii1].re / co1;
-                im = data.image[ID].array.CF[ii1].im / co1;
+                uint32_t ii1 = jj1 + ii;
+                uint32_t ii2 = ii - n0h;
+                double sqdist = ii2 * ii2 + jj2;
+                double angle = -coeff * sqdist;
+                double re = data.image[ID].array.CF[ii1].re / co1;
+                double im = data.image[ID].array.CF[ii1].im / co1;
                 data.image[ID].array.CF[ii1].re = re * cos(angle) - im * sin(angle);
                 data.image[ID].array.CF[ii1].im = re * sin(angle) + im * cos(angle);
             }
@@ -153,18 +117,18 @@ errno_t Fresnel_propagate_wavefront(
     }
     else
     {
-        for(jj = 0; jj < naxes[1]; jj++)
+        for(uint32_t jj = 0; jj < naxes[1]; jj++)
         {
-            jj1 = naxes[0] * jj;
-            jj2 = (jj - naxes[1] / 2) * (jj - naxes[1] / 2);
-            for(ii = 0; ii < naxes[0]; ii++)
+            uint32_t jj1 = naxes[0] * jj;
+            uint32_t jj2 = (jj - naxes[1] / 2) * (jj - naxes[1] / 2);
+            for(uint32_t ii = 0; ii < naxes[0]; ii++)
             {
-                ii1 = jj1 + ii;
-                ii2 = ii - n0h;
-                sqdist = ii2 * ii2 + jj2;
-                angle = -coeff * sqdist;
-                re = data.image[ID].array.CD[ii1].re / co1;
-                im = data.image[ID].array.CD[ii1].im / co1;
+                uint32_t ii1 = jj1 + ii;
+                uint32_t ii2 = ii - n0h;
+                double sqdist = ii2 * ii2 + jj2;
+                double angle = -coeff * sqdist;
+                double re = data.image[ID].array.CD[ii1].re / co1;
+                double im = data.image[ID].array.CD[ii1].im / co1;
                 data.image[ID].array.CD[ii1].re = re * cos(angle) - im * sin(angle);
                 data.image[ID].array.CD[ii1].im = re * sin(angle) + im * cos(angle);
             }
@@ -182,3 +146,36 @@ errno_t Fresnel_propagate_wavefront(
     return RETURN_SUCCESS;
 }
 
+
+
+// Wrapper function, used by all CLI calls
+// Defines how local variables are fed to computation code
+// Always local to this translation unit
+static errno_t compute_function()
+{
+    INSERT_STD_PROCINFO_COMPUTEFUNC_START
+
+    Fresnel_propagate_wavefront(
+        inimname,
+        outimname,
+        *pupscale,
+        *propz,
+        *proplambda
+    );
+
+    INSERT_STD_PROCINFO_COMPUTEFUNC_END
+
+    return RETURN_SUCCESS;
+}
+
+
+
+INSERT_STD_FPSCLIfunctions
+
+// Register function in CLI
+errno_t CLIADDCMD_Fresnel_propagate_wavefront()
+{
+    INSERT_STD_FPSCLIREGISTERFUNC
+
+    return RETURN_SUCCESS;
+}
