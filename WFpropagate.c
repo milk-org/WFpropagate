@@ -1,7 +1,7 @@
 /**
  * @file    WFpropagate.c
  * @brief   Optical propagation of wavefronts
- */ 
+ */
 
 
 /* ================================================================== */
@@ -28,7 +28,7 @@
 /* ================================================================== */
 /* ================================================================== */
 
-#include <fitsio.h> 
+#include <fitsio.h>
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
