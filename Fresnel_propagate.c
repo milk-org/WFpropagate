@@ -60,6 +60,11 @@ static CLICMDDATA CLIcmddata =
     NULL
 };
 
+// detailed help
+static errno_t help_function()
+{
+    return RETURN_SUCCESS;
+}
 
 
 
