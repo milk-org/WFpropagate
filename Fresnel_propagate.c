@@ -146,7 +146,7 @@ errno_t Fresnel_propagate_wavefront(
     do2dffti("tmp", out);
 
 
-    delete_image_ID("tmp");
+    delete_image_ID("tmp", DELETE_IMAGE_ERRMODE_WARNING);
 
     return RETURN_SUCCESS;
 }

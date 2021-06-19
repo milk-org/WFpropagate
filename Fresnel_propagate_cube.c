@@ -73,7 +73,7 @@ errno_t Fresnel_propagate_cube(
                 }
         }
 
-        delete_image_ID("_propim");
+        delete_image_ID("_propim", DELETE_IMAGE_ERRMODE_WARNING);
     }
 
     return RETURN_SUCCESS;
