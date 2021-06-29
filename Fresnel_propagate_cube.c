@@ -31,13 +31,13 @@ errno_t Fresnel_propagate_cube(
 
     if(datatype == _DATATYPE_COMPLEX_FLOAT)
     {
-        IDouta = create_3Dimage_ID(IDout_name_amp, xsize, ysize, NBzpts);
-        IDoutp = create_3Dimage_ID(IDout_name_pha, xsize, ysize, NBzpts);
+        create_3Dimage_ID(IDout_name_amp, xsize, ysize, NBzpts, &IDouta);
+        create_3Dimage_ID(IDout_name_pha, xsize, ysize, NBzpts, &IDoutp);
     }
     else
     {
-        IDouta = create_3Dimage_ID_double(IDout_name_amp, xsize, ysize, NBzpts);
-        IDoutp = create_3Dimage_ID_double(IDout_name_pha, xsize, ysize, NBzpts);
+        create_3Dimage_ID_double(IDout_name_amp, xsize, ysize, NBzpts, &IDouta);
+        create_3Dimage_ID_double(IDout_name_pha, xsize, ysize, NBzpts, &IDoutp);
     }
 
     for(uint32_t kk = 0; kk < NBzpts; kk++)
