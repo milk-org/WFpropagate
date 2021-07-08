@@ -72,16 +72,25 @@ static errno_t help_function()
 
 // Computation code
 errno_t Fresnel_propagate_wavefront(
-    const char *restrict in,
-    const char *restrict out,
+    const char *__restrict__ in,
+    const char *__restrict__ out,
     double PUPIL_SCALE,
     double z,
     double lambda
 )
 {
+    DEBUG_TRACE_FSTART();
+    DEBUG_TRACEPOINT("FARG %s %s %lf %lf %lf",
+                     in,
+                     out,
+                     PUPIL_SCALE,
+                     z,
+                     lambda
+                    );
+
     /* all units are in m */
     double coeff;
-    long naxes[2];
+    uint32_t naxes[2];
     imageID ID;
     double co1;
     long n0h;
@@ -145,9 +154,12 @@ errno_t Fresnel_propagate_wavefront(
 
     do2dffti("tmp", out);
 
+    FUNC_CHECK_RETURN(
+        delete_image_ID("tmp", DELETE_IMAGE_ERRMODE_WARNING)
+    );
 
-    delete_image_ID("tmp", DELETE_IMAGE_ERRMODE_WARNING);
 
+    DEBUG_TRACE_FEXIT();
     return RETURN_SUCCESS;
 }
 
