@@ -72,8 +72,8 @@ static errno_t help_function()
 
 // Computation code
 errno_t Fresnel_propagate_wavefront(
-    const char *__restrict__ in,
-    const char *__restrict__ out,
+    const char *__restrict in,
+    const char *__restrict out,
     double PUPIL_SCALE,
     double z,
     double lambda
