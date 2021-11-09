@@ -25,27 +25,27 @@ static CLICMDARGDEF farg[] =
     {
         CLIARG_IMG, ".in_name", "input image", "imin",
         CLICMDARG_FLAG_DEFAULT, FPTYPE_AUTO, FPFLAG_DEFAULT_INPUT,
-        (void **) &inimname
+        (void **) &inimname, NULL
     },
     {
         CLIARG_STR_NOT_IMG, ".out_name", "output image", "imout",
         CLICMDARG_FLAG_DEFAULT, FPTYPE_AUTO, FPFLAG_DEFAULT_INPUT,
-        (void **) &inimname
+        (void **) &inimname, NULL
     },
     {
         CLIARG_FLOAT, ".pupscale", "pupil scale [m/pix]", "1.0",
         CLICMDARG_FLAG_DEFAULT, FPTYPE_AUTO, FPFLAG_DEFAULT_INPUT,
-        (void **) &pupscale
+        (void **) &pupscale, NULL
     },
     {
         CLIARG_FLOAT, ".propz", "propagation distance [m]", "1.0",
         CLICMDARG_FLAG_DEFAULT, FPTYPE_AUTO, FPFLAG_DEFAULT_INPUT,
-        (void **) &propz
+        (void **) &propz, NULL
     },
     {
         CLIARG_FLOAT, ".proplambda", "wavelength [m]", "0.000001",
         CLICMDARG_FLAG_DEFAULT, FPTYPE_AUTO, FPFLAG_DEFAULT_INPUT,
-        (void **) &proplambda
+        (void **) &proplambda, NULL
     }
 };
 
@@ -55,10 +55,7 @@ static CLICMDDATA CLIcmddata =
 {
     "fresnelpw",
     "Fresnel propagate WF",
-    __FILE__, sizeof(farg) / sizeof(CLICMDARGDEF), farg,
-    CLICMDFLAG_FPS,
-    NULL,
-    NULL
+    CLICMD_FIELDS_DEFAULTS
 };
 
 // detailed help
