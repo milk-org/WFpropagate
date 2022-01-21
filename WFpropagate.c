@@ -4,7 +4,7 @@
  */
 
 #define MODULE_SHORTNAME_DEFAULT "wfprop"
-#define MODULE_DESCRIPTION "Optical propagation of wavefronts"
+#define MODULE_DESCRIPTION       "Optical propagation of wavefronts"
 
 #include "CommandLineInterface/CLIcore.h"
 

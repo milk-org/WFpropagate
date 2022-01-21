@@ -11,16 +11,21 @@
 
 #include "Fresnel_propagate.h"
 
-errno_t Fresnel_propagate_cube(const char *restrict IDcin_name, const char *restrict IDout_name_amp,
-                               const char *restrict IDout_name_pha, double PUPIL_SCALE, double zstart, double zend,
-                               long NBzpts, double lambda)
+errno_t Fresnel_propagate_cube(const char *restrict IDcin_name,
+                               const char *restrict IDout_name_amp,
+                               const char *restrict IDout_name_pha,
+                               double PUPIL_SCALE,
+                               double zstart,
+                               double zend,
+                               long   NBzpts,
+                               double lambda)
 {
     imageID IDouta, IDoutp;
 
-    imageID IDcin = image_ID(IDcin_name);
-    uint32_t xsize = data.image[IDcin].md[0].size[0];
-    uint32_t ysize = data.image[IDcin].md[0].size[1];
-    uint8_t datatype = data.image[IDcin].md[0].datatype;
+    imageID  IDcin    = image_ID(IDcin_name);
+    uint32_t xsize    = data.image[IDcin].md[0].size[0];
+    uint32_t ysize    = data.image[IDcin].md[0].size[1];
+    uint8_t  datatype = data.image[IDcin].md[0].datatype;
 
     if (datatype == _DATATYPE_COMPLEX_FLOAT)
     {
@@ -37,19 +42,25 @@ errno_t Fresnel_propagate_cube(const char *restrict IDcin_name, const char *rest
     {
         double zprop = zstart + (zend - zstart) * kk / NBzpts;
         printf("[%u] propagating by %f m\n", kk, zprop);
-        Fresnel_propagate_wavefront(IDcin_name, "_propim", PUPIL_SCALE, zprop, lambda);
+        Fresnel_propagate_wavefront(IDcin_name,
+                                    "_propim",
+                                    PUPIL_SCALE,
+                                    zprop,
+                                    lambda);
         imageID IDtmp = image_ID("_propim");
         if (datatype == _DATATYPE_COMPLEX_FLOAT)
         {
             for (uint32_t ii = 0; ii < xsize; ii++)
                 for (uint32_t jj = 0; jj < ysize; jj++)
                 {
-                    double re = data.image[IDtmp].array.CF[jj * xsize + ii].re;
-                    double im = data.image[IDtmp].array.CF[jj * xsize + ii].im;
+                    double re  = data.image[IDtmp].array.CF[jj * xsize + ii].re;
+                    double im  = data.image[IDtmp].array.CF[jj * xsize + ii].im;
                     double amp = sqrt(re * re + im * im);
                     double pha = atan2(im, re);
-                    data.image[IDouta].array.F[kk * xsize * ysize + jj * xsize + ii] = amp;
-                    data.image[IDoutp].array.F[kk * xsize * ysize + jj * xsize + ii] = pha;
+                    data.image[IDouta]
+                        .array.F[kk * xsize * ysize + jj * xsize + ii] = amp;
+                    data.image[IDoutp]
+                        .array.F[kk * xsize * ysize + jj * xsize + ii] = pha;
                 }
         }
         else
@@ -57,12 +68,14 @@ errno_t Fresnel_propagate_cube(const char *restrict IDcin_name, const char *rest
             for (uint32_t ii = 0; ii < xsize; ii++)
                 for (uint32_t jj = 0; jj < ysize; jj++)
                 {
-                    double re = data.image[IDtmp].array.CD[jj * xsize + ii].re;
-                    double im = data.image[IDtmp].array.CD[jj * xsize + ii].im;
+                    double re  = data.image[IDtmp].array.CD[jj * xsize + ii].re;
+                    double im  = data.image[IDtmp].array.CD[jj * xsize + ii].im;
                     double amp = sqrt(re * re + im * im);
                     double pha = atan2(im, re);
-                    data.image[IDouta].array.D[kk * xsize * ysize + jj * xsize + ii] = amp;
-                    data.image[IDoutp].array.D[kk * xsize * ysize + jj * xsize + ii] = pha;
+                    data.image[IDouta]
+                        .array.D[kk * xsize * ysize + jj * xsize + ii] = amp;
+                    data.image[IDoutp]
+                        .array.D[kk * xsize * ysize + jj * xsize + ii] = pha;
                 }
         }
 
