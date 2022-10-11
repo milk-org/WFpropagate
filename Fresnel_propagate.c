@@ -18,55 +18,68 @@ static double *propz;
 static double *proplambda;
 
 // CLI function arguments and parameters
-static CLICMDARGDEF farg[] = {{CLIARG_IMG,
-                               ".in_name",
-                               "input image",
-                               "imin",
-                               CLICMDARG_FLAG_DEFAULT,
-                               FPTYPE_AUTO,
-                               FPFLAG_DEFAULT_INPUT,
-                               (void **) &inimname,
-                               NULL},
-                              {CLIARG_STR_NOT_IMG,
-                               ".out_name",
-                               "output image",
-                               "imout",
-                               CLICMDARG_FLAG_DEFAULT,
-                               FPTYPE_AUTO,
-                               FPFLAG_DEFAULT_INPUT,
-                               (void **) &inimname,
-                               NULL},
-                              {CLIARG_FLOAT,
-                               ".pupscale",
-                               "pupil scale [m/pix]",
-                               "1.0",
-                               CLICMDARG_FLAG_DEFAULT,
-                               FPTYPE_AUTO,
-                               FPFLAG_DEFAULT_INPUT,
-                               (void **) &pupscale,
-                               NULL},
-                              {CLIARG_FLOAT,
-                               ".propz",
-                               "propagation distance [m]",
-                               "1.0",
-                               CLICMDARG_FLAG_DEFAULT,
-                               FPTYPE_AUTO,
-                               FPFLAG_DEFAULT_INPUT,
-                               (void **) &propz,
-                               NULL},
-                              {CLIARG_FLOAT,
-                               ".proplambda",
-                               "wavelength [m]",
-                               "0.000001",
-                               CLICMDARG_FLAG_DEFAULT,
-                               FPTYPE_AUTO,
-                               FPFLAG_DEFAULT_INPUT,
-                               (void **) &proplambda,
-                               NULL}};
+static CLICMDARGDEF farg[] = {{
+        CLIARG_IMG,
+        ".in_name",
+        "input image",
+        "imin",
+        CLICMDARG_FLAG_DEFAULT,
+        FPTYPE_AUTO,
+        FPFLAG_DEFAULT_INPUT,
+        (void **) &inimname,
+        NULL
+    },
+    {
+        CLIARG_STR_NOT_IMG,
+        ".out_name",
+        "output image",
+        "imout",
+        CLICMDARG_FLAG_DEFAULT,
+        FPTYPE_AUTO,
+        FPFLAG_DEFAULT_INPUT,
+        (void **) &inimname,
+        NULL
+    },
+    {
+        CLIARG_FLOAT,
+        ".pupscale",
+        "pupil scale [m/pix]",
+        "1.0",
+        CLICMDARG_FLAG_DEFAULT,
+        FPTYPE_AUTO,
+        FPFLAG_DEFAULT_INPUT,
+        (void **) &pupscale,
+        NULL
+    },
+    {
+        CLIARG_FLOAT,
+        ".propz",
+        "propagation distance [m]",
+        "1.0",
+        CLICMDARG_FLAG_DEFAULT,
+        FPTYPE_AUTO,
+        FPFLAG_DEFAULT_INPUT,
+        (void **) &propz,
+        NULL
+    },
+    {
+        CLIARG_FLOAT,
+        ".proplambda",
+        "wavelength [m]",
+        "0.000001",
+        CLICMDARG_FLAG_DEFAULT,
+        FPTYPE_AUTO,
+        FPFLAG_DEFAULT_INPUT,
+        (void **) &proplambda,
+        NULL
+    }
+};
 
 // CLI function initialization data
-static CLICMDDATA CLIcmddata = {
-    "fresnelpw", "Fresnel propagate WF", CLICMD_FIELDS_DEFAULTS};
+static CLICMDDATA CLIcmddata =
+{
+    "fresnelpw", "Fresnel propagate WF", CLICMD_FIELDS_DEFAULTS
+};
 
 // detailed help
 static errno_t help_function()
@@ -105,13 +118,13 @@ errno_t Fresnel_propagate_wavefront(const char *__restrict in,
     co1 = 1.0 * naxes[0] * naxes[1];
     n0h = naxes[0] / 2;
 
-    if (datatype == _DATATYPE_COMPLEX_FLOAT)
+    if(datatype == _DATATYPE_COMPLEX_FLOAT)
     {
-        for (uint32_t jj = 0; jj < naxes[1]; jj++)
+        for(uint32_t jj = 0; jj < naxes[1]; jj++)
         {
             uint32_t jj1 = naxes[0] * jj;
             uint32_t jj2 = (jj - naxes[1] / 2) * (jj - naxes[1] / 2);
-            for (uint32_t ii = 0; ii < naxes[0]; ii++)
+            for(uint32_t ii = 0; ii < naxes[0]; ii++)
             {
                 uint32_t ii1    = jj1 + ii;
                 uint32_t ii2    = ii - n0h;
@@ -128,11 +141,11 @@ errno_t Fresnel_propagate_wavefront(const char *__restrict in,
     }
     else
     {
-        for (uint32_t jj = 0; jj < naxes[1]; jj++)
+        for(uint32_t jj = 0; jj < naxes[1]; jj++)
         {
             uint32_t jj1 = naxes[0] * jj;
             uint32_t jj2 = (jj - naxes[1] / 2) * (jj - naxes[1] / 2);
-            for (uint32_t ii = 0; ii < naxes[0]; ii++)
+            for(uint32_t ii = 0; ii < naxes[0]; ii++)
             {
                 uint32_t ii1    = jj1 + ii;
                 uint32_t ii2    = ii - n0h;
@@ -181,9 +194,9 @@ static errno_t compute_function()
 
 INSERT_STD_FPSCLIfunctions
 
-    // Register function in CLI
-    errno_t
-    CLIADDCMD_Fresnel_propagate_wavefront()
+// Register function in CLI
+errno_t
+CLIADDCMD_Fresnel_propagate_wavefront()
 {
     INSERT_STD_CLIREGISTERFUNC
 

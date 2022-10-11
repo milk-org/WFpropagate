@@ -27,7 +27,7 @@ errno_t Fresnel_propagate_cube(const char *restrict IDcin_name,
     uint32_t ysize    = data.image[IDcin].md[0].size[1];
     uint8_t  datatype = data.image[IDcin].md[0].datatype;
 
-    if (datatype == _DATATYPE_COMPLEX_FLOAT)
+    if(datatype == _DATATYPE_COMPLEX_FLOAT)
     {
         create_3Dimage_ID(IDout_name_amp, xsize, ysize, NBzpts, &IDouta);
         create_3Dimage_ID(IDout_name_pha, xsize, ysize, NBzpts, &IDoutp);
@@ -38,7 +38,7 @@ errno_t Fresnel_propagate_cube(const char *restrict IDcin_name,
         create_3Dimage_ID_double(IDout_name_pha, xsize, ysize, NBzpts, &IDoutp);
     }
 
-    for (uint32_t kk = 0; kk < NBzpts; kk++)
+    for(uint32_t kk = 0; kk < NBzpts; kk++)
     {
         double zprop = zstart + (zend - zstart) * kk / NBzpts;
         printf("[%u] propagating by %f m\n", kk, zprop);
@@ -48,34 +48,34 @@ errno_t Fresnel_propagate_cube(const char *restrict IDcin_name,
                                     zprop,
                                     lambda);
         imageID IDtmp = image_ID("_propim");
-        if (datatype == _DATATYPE_COMPLEX_FLOAT)
+        if(datatype == _DATATYPE_COMPLEX_FLOAT)
         {
-            for (uint32_t ii = 0; ii < xsize; ii++)
-                for (uint32_t jj = 0; jj < ysize; jj++)
+            for(uint32_t ii = 0; ii < xsize; ii++)
+                for(uint32_t jj = 0; jj < ysize; jj++)
                 {
                     double re  = data.image[IDtmp].array.CF[jj * xsize + ii].re;
                     double im  = data.image[IDtmp].array.CF[jj * xsize + ii].im;
                     double amp = sqrt(re * re + im * im);
                     double pha = atan2(im, re);
                     data.image[IDouta]
-                        .array.F[kk * xsize * ysize + jj * xsize + ii] = amp;
+                    .array.F[kk * xsize * ysize + jj * xsize + ii] = amp;
                     data.image[IDoutp]
-                        .array.F[kk * xsize * ysize + jj * xsize + ii] = pha;
+                    .array.F[kk * xsize * ysize + jj * xsize + ii] = pha;
                 }
         }
         else
         {
-            for (uint32_t ii = 0; ii < xsize; ii++)
-                for (uint32_t jj = 0; jj < ysize; jj++)
+            for(uint32_t ii = 0; ii < xsize; ii++)
+                for(uint32_t jj = 0; jj < ysize; jj++)
                 {
                     double re  = data.image[IDtmp].array.CD[jj * xsize + ii].re;
                     double im  = data.image[IDtmp].array.CD[jj * xsize + ii].im;
                     double amp = sqrt(re * re + im * im);
                     double pha = atan2(im, re);
                     data.image[IDouta]
-                        .array.D[kk * xsize * ysize + jj * xsize + ii] = amp;
+                    .array.D[kk * xsize * ysize + jj * xsize + ii] = amp;
                     data.image[IDoutp]
-                        .array.D[kk * xsize * ysize + jj * xsize + ii] = pha;
+                    .array.D[kk * xsize * ysize + jj * xsize + ii] = pha;
                 }
         }
 
