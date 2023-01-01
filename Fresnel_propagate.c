@@ -41,7 +41,7 @@ static CLICMDARGDEF farg[] = {{
         NULL
     },
     {
-        CLIARG_FLOAT,
+        CLIARG_FLOAT64,
         ".pupscale",
         "pupil scale [m/pix]",
         "1.0",
@@ -52,7 +52,7 @@ static CLICMDARGDEF farg[] = {{
         NULL
     },
     {
-        CLIARG_FLOAT,
+        CLIARG_FLOAT64,
         ".propz",
         "propagation distance [m]",
         "1.0",
@@ -63,7 +63,7 @@ static CLICMDARGDEF farg[] = {{
         NULL
     },
     {
-        CLIARG_FLOAT,
+        CLIARG_FLOAT64,
         ".proplambda",
         "wavelength [m]",
         "0.000001",
