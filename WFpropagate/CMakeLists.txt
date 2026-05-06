@@ -34,8 +34,11 @@ project(lib_${LIBNAME}_project)
 
 add_library(${LIBNAME} SHARED ${SRCNAME}.c ${SOURCEFILES})
 
-target_include_directories(${LIBNAME} PUBLIC ${PROJECT_SOURCE_DIR}/..)
-target_link_libraries(${LIBNAME} PUBLIC CLIcore)
+target_include_directories(${LIBNAME} PUBLIC 
+    ${PROJECT_SOURCE_DIR}/..
+    ${CMAKE_SOURCE_DIR}/plugins/milk-extra-src
+)
+target_link_libraries(${LIBNAME} PUBLIC CLIcore milkfft)
 
 
 install(TARGETS ${LIBNAME} DESTINATION lib)
