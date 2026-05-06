@@ -6,7 +6,7 @@
 #define MODULE_SHORTNAME_DEFAULT "wfprop"
 #define MODULE_DESCRIPTION       "Optical propagation of wavefronts"
 
-#include "CommandLineInterface/CLIcore.h"
+#include "CLIcore.h"
 
 #include "Fresnel_propagate.h"
 // #include "Fresnel_propagate_cube.h"

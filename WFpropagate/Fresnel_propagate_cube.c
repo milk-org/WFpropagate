@@ -5,7 +5,7 @@
 
 #include <math.h>
 
-#include "CommandLineInterface/CLIcore.h"
+#include "CLIcore.h"
 
 #include "COREMOD_memory/COREMOD_memory.h"
 
@@ -22,10 +22,10 @@ errno_t Fresnel_propagate_cube(const char *restrict IDcin_name,
 {
     imageID IDouta, IDoutp;
 
-    imageID  IDcin    = image_ID(IDcin_name);
-    uint32_t xsize    = data.image[IDcin].md[0].size[0];
-    uint32_t ysize    = data.image[IDcin].md[0].size[1];
-    uint8_t  datatype = data.image[IDcin].md[0].datatype;
+    imageID  IDcin    = image_ID(IDcin_name, data.core.image, data.core.NB_MAX_IMAGE);
+    uint32_t xsize    = data.core.image[IDcin].md[0].size[0];
+    uint32_t ysize    = data.core.image[IDcin].md[0].size[1];
+    uint8_t  datatype = data.core.image[IDcin].md[0].datatype;
 
     if(datatype == _DATATYPE_COMPLEX_FLOAT)
     {
@@ -47,19 +47,19 @@ errno_t Fresnel_propagate_cube(const char *restrict IDcin_name,
                                     PUPIL_SCALE,
                                     zprop,
                                     lambda);
-        imageID IDtmp = image_ID("_propim");
+        imageID IDtmp = image_ID("_propim", data.core.image, data.core.NB_MAX_IMAGE);
         if(datatype == _DATATYPE_COMPLEX_FLOAT)
         {
             for(uint32_t ii = 0; ii < xsize; ii++)
                 for(uint32_t jj = 0; jj < ysize; jj++)
                 {
-                    double re  = data.image[IDtmp].array.CF[jj * xsize + ii].re;
-                    double im  = data.image[IDtmp].array.CF[jj * xsize + ii].im;
+                    double re  = data.core.image[IDtmp].array.CF[jj * xsize + ii].re;
+                    double im  = data.core.image[IDtmp].array.CF[jj * xsize + ii].im;
                     double amp = sqrt(re * re + im * im);
                     double pha = atan2(im, re);
-                    data.image[IDouta]
+                    data.core.image[IDouta]
                     .array.F[kk * xsize * ysize + jj * xsize + ii] = amp;
-                    data.image[IDoutp]
+                    data.core.image[IDoutp]
                     .array.F[kk * xsize * ysize + jj * xsize + ii] = pha;
                 }
         }
@@ -68,13 +68,13 @@ errno_t Fresnel_propagate_cube(const char *restrict IDcin_name,
             for(uint32_t ii = 0; ii < xsize; ii++)
                 for(uint32_t jj = 0; jj < ysize; jj++)
                 {
-                    double re  = data.image[IDtmp].array.CD[jj * xsize + ii].re;
-                    double im  = data.image[IDtmp].array.CD[jj * xsize + ii].im;
+                    double re  = data.core.image[IDtmp].array.CD[jj * xsize + ii].re;
+                    double im  = data.core.image[IDtmp].array.CD[jj * xsize + ii].im;
                     double amp = sqrt(re * re + im * im);
                     double pha = atan2(im, re);
-                    data.image[IDouta]
+                    data.core.image[IDouta]
                     .array.D[kk * xsize * ysize + jj * xsize + ii] = amp;
-                    data.image[IDoutp]
+                    data.core.image[IDoutp]
                     .array.D[kk * xsize * ysize + jj * xsize + ii] = pha;
                 }
         }
