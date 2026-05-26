@@ -72,10 +72,6 @@ static CLICMDDATA CLIcmddata =
 };
 
 // detailed help
-static errno_t help_function()
-{
-    return RETURN_SUCCESS;
-}
 
 // Computation code
 errno_t Fresnel_propagate_wavefront(const char *__restrict in,
