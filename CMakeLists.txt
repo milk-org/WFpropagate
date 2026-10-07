@@ -65,6 +65,13 @@ if(TARGET CLIcore)
         $<INSTALL_INTERFACE:include>
         $<INSTALL_INTERFACE:include/${SRCNAME}>
     )
+    target_include_directories(${LIBNAME} PRIVATE
+        ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_SOURCE_DIR}/src/coremods
+        ${CMAKE_SOURCE_DIR}/plugins
+        ${CMAKE_SOURCE_DIR}/plugins/milk-extra-src
+        $<TARGET_PROPERTY:CLIcore,INTERFACE_INCLUDE_DIRECTORIES>
+    )
 
     target_link_libraries(${LIBNAME} PUBLIC
         milkOpticsMaterials
