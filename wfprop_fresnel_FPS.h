@@ -10,8 +10,8 @@
 #ifndef WFPROP_FRESNEL_FPS_H
 #define WFPROP_FRESNEL_FPS_H
 
-#include "CLIcore.h"
+#include "milk_runnable.h"
 
-errno_t CLIADDCMD_WFpropagate__fresnel_FPS(void);
+extern const MILK_RUNNABLE runnable_wfprop_fresnel;
 
 #endif // WFPROP_FRESNEL_FPS_H

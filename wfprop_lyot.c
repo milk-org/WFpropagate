@@ -86,7 +86,8 @@ double WFpropagate_TestLyot(long NBmask, double *maskpos)
     permut("imc1");
     mk_amph_from_complex("imc1", "foca", "focp", 0);
     delete_image_ID("imc1");
-    execute_arith("foci=foca*foca/98130");
+    arith_image_mult("foca", "foca", "foci");
+    arith_image_cstdiv_inplace("foci", 98130.0);
 
     long IDa  = image_ID("foca");
     long size = dcimg[IDa].md[0].size[0];
@@ -158,7 +159,7 @@ long WFpropagate_run(void)
     }
 
     load_fits("pa1a_post2.fits", "pa1a", 1);
-    execute_arith("refpup=pa1a*pa1a");
+    arith_image_mult("pa1a", "pa1a", "refpup");
     double tot0 = arith_image_total("refpup");
 
     make_disk("mask0", 2048, 2048, 1024, 1024, 190.0);
@@ -174,7 +175,10 @@ long WFpropagate_run(void)
     load_fits("mask_o5_r48.fits", "mask3", 1);
     maskpos[3] = 0.14;
 
-    execute_arith("refpup1=refpup*mask0*mask1*mask2*mask3");
+    arith_image_mult("refpup", "mask0", "refpup1");
+    arith_image_mult_inplace("refpup1", "mask1");
+    arith_image_mult_inplace("refpup1", "mask2");
+    arith_image_mult_inplace("refpup1", "mask3");
     double tot1 = arith_image_total("refpup1");
 
     FILE *fp = fopen("result.txt", "w");

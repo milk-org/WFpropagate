@@ -7,30 +7,13 @@
  * @brief   FPS V2 compute unit for Fresnel wavefront propagation
  */
 
-#ifdef MILK_NO_CLI
-#    include "CLIcore_standalone.h"
-#else
-#    include "CLIcore.h"
-#endif
-#include "fps.h"
+#include "milk_runnable.h"
 #include "COREMOD_memory/COREMOD_memory.h"
 #include "WFpropagate/WFpropagate.h"
 #include "wfprop_fresnel_FPS.h"
 
 /* ================================================================
- * 1.  FPS COMPONENT IDENTITY
- * ============================================================= */
-
-static FPS_APP_INFO FPS_app_info = {
-    .fps_name         = "wfprop_fresnel",
-    .cmdkey           = "fresnelprop",
-    .description      = "Fresnel diffractive propagation of optical wavefront",
-    .description_long = "Propagates a 2D complex optical field over a distance z using "
-                        "the Fourier-domain Fresnel quadratic phase transfer function."
-};
-
-/* ================================================================
- * 2.  LOCAL PARAMETER VARIABLES
+ * 1.  LOCAL PARAMETER VARIABLES
  * ============================================================= */
 
 static double param_pupilscale = 0.01;
@@ -40,13 +23,13 @@ static char   param_inname[FUNCTION_PARAMETER_STRMAXLEN]  = "wfin";
 static char   param_outname[FUNCTION_PARAMETER_STRMAXLEN] = "wfout";
 
 /* ================================================================
- * 3.  UNIFIED PARAMETER TABLE (X-Macro)
+ * 2.  UNIFIED PARAMETER TABLE (X-Macro)
  * ============================================================= */
 
 #define FPS_PARAMS(X)                                                           \
-    X(".inname", &param_inname, FPTYPE_STREAMNAME, 1, FPFLAG_DEFAULT_INPUT,     \
+    X(".inname", param_inname, FPTYPE_STREAMNAME, 1, FPFLAG_DEFAULT_INPUT,      \
       "Input complex image")                                                    \
-    X(".outname", &param_outname, FPTYPE_STREAMNAME, 1, FPFLAG_DEFAULT_INPUT,    \
+    X(".outname", param_outname, FPTYPE_STREAMNAME, 1, FPFLAG_DEFAULT_INPUT,    \
       "Output complex image")                                                   \
     X(".pupilscale", &param_pupilscale, FPTYPE_FLOAT64, 1,                      \
       FPFLAG_DEFAULT_INPUT, "Pupil sampling scale [m/pixel]")                    \
@@ -55,8 +38,10 @@ static char   param_outname[FUNCTION_PARAMETER_STRMAXLEN] = "wfout";
     X(".lambda", &param_lambda, FPTYPE_FLOAT64, 1, FPFLAG_DEFAULT_INPUT,         \
       "Optical wavelength [m]")
 
+MILK_PARAMS_DEFINE(wfprop_fresnel, FPS_PARAMS);
+
 /* ================================================================
- * 4.  COMPUTATION LOGIC
+ * 3.  COMPUTATION LOGIC
  * ============================================================= */
 
 /**
@@ -72,61 +57,44 @@ static MILK_HOT errno_t fpsexec(void)
     return RETURN_SUCCESS;
 }
 
-/* ================================================================
- * 5.  BINDINGS, FARG, AND CLI DATA
- * ============================================================= */
-
-FPS_V2_SECTION5(FPS_PARAMS)
-
-/* ================================================================
- * 6.  COMPUTE WRAPPER
- * ============================================================= */
-
 /**
- * compute_function - Orchestrator wrapper for processinfo tracing
+ * wfprop_fresnel_compute - Execute Fresnel propagation within procinfo loop
+ * @self: Pointer to this MILK_RUNNABLE descriptor.
  *
  * Return: RETURN_SUCCESS on completion.
  */
-static MILK_HOT errno_t __attribute__((unused)) compute_function(void)
+static MILK_HOT errno_t wfprop_fresnel_compute(
+    const MILK_RUNNABLE *self)
 {
     DEBUG_TRACE_FSTART();
+    errno_t ret = RETURN_SUCCESS;
 
-    INSERT_STD_PROCINFO_COMPUTEFUNC_START
-    fpsexec();
-    INSERT_STD_PROCINFO_COMPUTEFUNC_END
+    MILK_PROCINFO_INIT(self)
+    MILK_PROCINFO_LOOPSTART(self)
+    ret = fpsexec();
+    MILK_PROCINFO_END(self)
 
     DEBUG_TRACE_FEXIT();
-    return RETURN_SUCCESS;
+    return ret;
 }
 
 /* ================================================================
- * 7.  MILK MODULE REGISTRATION
+ * 4.  MILK RUNNABLE REGISTRATION
  * ============================================================= */
 
-#if !defined(FPS_STANDALONE) && !defined(MILK_NO_CLI)
-static errno_t CLIfunction(void)
-{
-    return safe_fps_generic_CLIfunction(&FPS_app_info, farg, &CLIcmddata, my_bindings,
-                                        nb_bindings, compute_function);
-}
+const MILK_RUNNABLE runnable_wfprop_fresnel = {
+    .kind = MILK_RUNNABLE_FPS,
+    .app  = {
+        .fps_name         = "wfprop_fresnel",
+        .cmdkey           = "fresnelprop",
+        .description      = "Fresnel diffractive propagation of optical wavefront",
+        .description_long = "Propagates a 2D complex optical field over a distance z "
+                            "using the Fourier-domain Fresnel quadratic phase transfer "
+                            "function."
+    },
+    .srcfile = __FILE__,
+    MILK_PARAMS_REF(wfprop_fresnel),
+    .compute = wfprop_fresnel_compute,
+};
 
-/**
- * CLIADDCMD_WFpropagate__fresnel_FPS - Register command with CLI
- *
- * Return: RETURN_SUCCESS on success.
- */
-errno_t CLIADDCMD_WFpropagate__fresnel_FPS(void)
-{
-    safe_fps_fill_farg_examples(farg, my_bindings, nb_bindings);
-    INSERT_STD_CLIREGISTERFUNC
-    return RETURN_SUCCESS;
-}
-#endif
-
-/* ================================================================
- * 8.  STANDALONE ENTRY POINT
- * ============================================================= */
-
-#ifdef FPS_STANDALONE
-FPS_MAIN_STANDALONE_V2(FPS_app_info, FPS_PARAMS, compute_function)
-#endif
+EXPORT_FPSEXEC(milk, "wfprop-fresnel", runnable_wfprop_fresnel);
